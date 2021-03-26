@@ -1,20 +1,12 @@
-{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE InstanceSigs  #-}
 {-# LANGUAGE TupleSections #-}
 
 module State where
 
---   ( State,
---     get,
---     put,
---     modify,
---     runState,
---     evalState,
---     execState,
---   )
+import           Control.Monad (ap, liftM)
 
-import Control.Monad (ap, liftM)
-
-newtype State s a = S {runState :: s -> (a, s)}
+{-| State monad -}
+newtype State s a = S {runState :: s -> (a, s)} -- ^ default state constructor
 
 instance Monad (State s) where
   return :: a -> State s a

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b37a2bdb5bd13ffb03ac294173eae1b4076456e2100adf2ffa8d51c6ede45bc3
+-- hash: f64b1bf71f00b9e6c0c8c22d42a065d63869a7155ab6e9f3f4dee24b202c5eba
 
 name:           cis552
 version:        0.1.0.0
@@ -38,6 +38,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , containers
   default-language: Haskell2010
 
 executable cis552-exe
@@ -46,7 +47,7 @@ executable cis552-exe
       Paths_cis552
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -haddock
   build-depends:
       base >=4.7 && <5
     , cis552
@@ -61,10 +62,11 @@ test-suite cis552-test
       Paths_cis552
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -haddock
   build-depends:
       base >=4.7 && <5
     , cis552
+    , containers
   default-language: Haskell2010
 
 test-suite gadts-test
@@ -76,8 +78,9 @@ test-suite gadts-test
       Paths_cis552
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -haddock
   build-depends:
       base >=4.7 && <5
     , cis552
+    , containers
   default-language: Haskell2010

@@ -1,15 +1,15 @@
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE BangPatterns  #-}
 {-# LANGUAGE TupleSections #-}
-
+{-# LANGUAGE LambdaCase #-}
 module StateMonad where
 
-import Control.Monad (ap, liftM)
-import Data.Map (Map)
-import qualified Data.Map as Map
-import qualified Data.Maybe as Maybe
-import Debug.Trace (trace)
-
-import Data.Functor((<&>))
+import           Control.Monad (ap, liftM)
+import           Data.Functor  ((<&>))
+import           Data.Map      (Map)
+import qualified Data.Map      as Map
+import qualified Data.Maybe    as Maybe
+import           Debug.Trace   (trace)
+import qualified State
 
 -- import State()
 
@@ -20,7 +20,7 @@ tree :: Tree Char
 tree = Branch (Branch (Leaf 'a') (Leaf 'b')) (Leaf 'c')
 
 countF :: Tree a -> Int
-countF (Leaf _) = 1
+countF (Leaf _)     = 1
 countF (Branch a b) = countF a + countF b
 
 type Store = Int
@@ -99,5 +99,51 @@ mlabel (Leaf x) = do
     return (Leaf (x, i))
 -- import Data.Functor((<&>))
 mlabel (Branch t1 t2) = mlabel t1 >>= (`fmap` mlabel t2) . Branch
-    
-    
+
+
+freshS :: State.State Int Int
+freshS = State.modify (+1) >> State.get
+
+
+mlabelS :: Tree a -> State.State Int (Tree (a, Int))
+mlabelS (Leaf x )= do y <- freshS
+                      return $ Leaf (x, y)
+mlabelS (Branch t1 t2) = do t1' <- mlabelS t1
+                            t2' <- mlabelS t2
+                            return (Branch t1' t2')
+
+
+data MySt a = MS
+  {
+    index :: Int
+  , freq  :: Map a Int
+  } deriving (Show)
+
+freshMS :: State.State (MySt a) Int
+freshMS = do
+  s <- State.get
+  let idx' = index s + 1
+  State.put $ s{index=idx'}
+  return idx'
+
+updFreqM :: Ord a => a -> State.State (MySt a) ()
+updFreqM elem = do
+  s <- State.get
+  State.put s { freq = Map.alter (\case
+                                    Just x -> Just (x+1)
+                                    Nothing -> Just 1) 
+                                  elem (freq s)}
+  return ()
+
+mlabelM :: Ord a => Tree a -> State.State (MySt a) (Tree (a, Int))
+mlabelM (Leaf x)     =  do y <- freshMS
+                           updFreqM x
+                           return (Leaf (x,y))
+mlabelM (Branch t1 t2) = do t1' <- mlabelM t1
+                            t2' <- mlabelM t2
+                            return (Branch t1' t2')
+
+
+initM :: MySt a
+initM = MS {index = 0, freq = Map.empty }
+
